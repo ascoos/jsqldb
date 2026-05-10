@@ -1,6 +1,6 @@
 ![JSQL Database](https://cdn.ascoos.com/images/jsqldb/jsqldb.png)
 
-# JSQLDB – JSON Database Engine with SQL Syntax for Ascoos OS
+# JSQLDB - JSON Database Engine with SQL Syntax for Ascoos OS
 
 **JSQLDB** is the built‑in database engine of Ascoos OS.  
 It is based entirely on **JSON files**, while supporting SQL‑like queries for everyday data operations.  
@@ -77,7 +77,7 @@ Each domain/subdomain may have its own database with its own credentials:
 
 ---
 
-## Example 1 – Creating a database, a table and inserting multiple records
+## Example 1 - Creating a database, a table and inserting multiple records
 
 The following example (`examples/example3.php`) demonstrates a complete workflow:  
 creating a database, assigning a user, creating a table, performing a batch insert and retrieving data.
@@ -109,7 +109,7 @@ $jsqldb->close();
 
 ---
 
-## Example 2 – News system with JOIN and published articles
+## Example 2 - News system with JOIN and published articles
 
 The second example (`examples/example4.php`) shows a more complete scenario:  
 a news table with slug, excerpt, content, timestamps, ENUM status and JOIN with users and categories.
