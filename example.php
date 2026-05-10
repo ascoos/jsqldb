@@ -68,31 +68,31 @@ use ASCOOS\OS\Kernel\Core\TError;
 global $conf, $my;
 
 $properties = [
-    'tables_prefix' => 'ascoos_',   // τελικό prefix π.χ. ascoos_articles
-    'default_compression' => true   // compression στα TEXT
+    'tables_prefix' => 'ascoos_',   // final prefix e.g. ascoos_articles
+    'default_compression' => true   // compression in TEXT
 ];
 
-// Αρχικοποίηση του αντικειμένου της βάσης δεδομένων
+// Initialization of the database object
 $jsqldb = new TJSQLDBHandler($conf, $properties);
 
 
-// 1. Δημιουργία ή επιλογή βάσης (συνήθως το κάνεις 1 φορά ή στο install)
+// 1. Create or select a database (usually you do it once or during the install)
 try {
-    // Δημιουργία βάσης δεδομένων
+    // Database creation
     $jsqldb->createDatabase('test_db');
 
-    // Δημιουργία χρήστη και αντιστοίχιση σε βάση δεδομένων
+    // User creation and mapping to a database
     $jsqldb->createUser('user', 'pass', 'test_db');
 
-    // Επιλογή τρέχουσας βάσης δεδομένων
+    // Select current database
     $jsqldb->selectDatabase('test_db');
 } catch (Exception $e) {
     $jsqldb->logger->log("Database init error: " . $e->getMessage(), $jsqldb::DEBUG_LEVEL_ERROR);
     $jsqldb->close();
-    new TError("Πρόβλημα αρχικοποίησης βάσης δεδομένων.", E_ASCOOS_DB_JSQLDB_NOT_INIT);
+    new TError("Database initialization problem.", E_ASCOOS_DB_JSQLDB_NOT_INIT);
 }
 
-// 2. Δημιουργία πίνακα (συνήθως στο migration/install script)
+// 2. Creating a table (usually in the migration/install script)
 $sql = "CREATE TABLE IF NOT EXISTS `#__articles` (
   `id`          INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `article_id`  INT UNSIGNED NOT NULL DEFAULT 0,
@@ -108,11 +108,11 @@ $sql = "CREATE TABLE IF NOT EXISTS `#__articles` (
 $jsqldb->setSQLQuery($sql);
 if (!$jsqldb->execute()) {
     $jsqldb->close();
-    new TError("Αποτυχία δημιουργίας πίνακα: " . $jsqldb->logger->get_last_log(), E_ASCOOS_DB_JSQLDB_CREATE_TABLE);
+    new TError("Failed to create table: " . $jsqldb->logger->get_last_log(), E_ASCOOS_DB_JSQLDB_CREATE_TABLE);
 }
 
 
-// 3. Εισαγωγή εγγραφής (prepared statement)
+// 3. Insert record (prepared statement)
 $insertQuery = "INSERT INTO #__articles (article_id, cat_id, user_id, lang_id, title, content) 
     VALUES (?, ?, ?, ?, ?, ?)
 ";
@@ -127,14 +127,14 @@ $data = [
 
 $types = 'iiiiss';   // int, int, int, int, string, string
 
-$jsqldb->bind($types, $data, $insertQuery);   // notice: array μέσα σε array για batch
+$jsqldb->bind($types, $data, $insertQuery);   // notice: array inside an array for batch
 if (!$jsqldb->execute()) {
     $jsqldb->close();
     new TError("Insert failed: " . $jsqldb->getLastError(), E_ASCOOS_DB_JSQLDB_INSERT_DATA);
 }
 
 
-// 4. Αναζήτηση - απλή 
+// 4. Search - simple
 $selectQuery = "SELECT article_id AS aid, title, content AS doc
     FROM #__articles
     WHERE user_id = ? AND lang_id = ?
@@ -150,7 +150,7 @@ if (!$jsqldb->execute()) {
 $data = $jsqldb->getResults();
 
 
-// 5. Κλείσιμο όλων των ανοιχτών πόρων της βάσης δεδομένων
+// 5. Closing all open database resources
 $jsqldb->close();
 
 print_r($data);
