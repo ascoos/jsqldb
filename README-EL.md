@@ -1,136 +1,170 @@
 ![JSQL Database](https://cdn.ascoos.com/images/jsqldb/jsqldb.png)
 
----
+# JSQLDB – Μηχανή Βάσης Δεδομένων JSON με SQL Σύνταξη για το Ascoos OS
 
-## **JSQLDB - JSON SQL Database for PHP**
-## 💬 **Μια ελαφριά, SQL-like βάση δεδομένων βασισμένη σε JSON για PHP**  
+Η **JSQLDB** αποτελεί την ενσωματωμένη μηχανή βάσης δεδομένων του Ascoos OS και βασίζεται αποκλειστικά σε αρχεία **JSON**, με υποστήριξη SQL-like ερωτημάτων.  
+Σχεδιάστηκε για εφαρμογές που χρειάζονται φορητότητα, ασφάλεια, ταχύτητα και πλήρη ανεξαρτησία από MySQL, MariaDB ή SQLite.
 
-Το **JSQLDB** είναι ένα **ευέλικτο σύστημα βάσης δεδομένων** που **αξιοποιεί JSON** για αποθήκευση και παρέχει **SQL-like queries** χωρίς την ανάγκη για SQLite ή MySQL. Είναι **ελαφρύ, γρήγορο** και **ιδανικό** για εφαρμογές που χρειάζονται **φορητότητα και ασφάλεια**.
-
----
-
-## **🚀 Χαρακτηριστικά**
-- ✅ **JSON-based αποθήκευση** χωρίς DLL/SO εξαρτήσεις  
-- ✅ **SQL-like queries** με υποστήριξη `SELECT`, `INSERT`, `UPDATE`, `DELETE`, `JOIN`, `UNION`, `GROUP - BY`, `HAVING`, `LIMIT`, `ORDER BY`, `DISTINCT` κλπ.  
-- ✅ **Υποστήριξη Indexing** για γρήγορη αναζήτηση  
-- ✅ **Συμπιεσμένη αποθήκευση** για βελτιστοποιημένη χρήση πόρων  
-- ✅ **Προσαρμογή διαδρομής αποθήκευσης** για ασφαλή διαχείριση δεδομένων  
-- ✅ **Βελτιστοποιημένο για PHP 8.2+**  
+Η λειτουργία της είναι πλήρως ενοποιημένη με τον πυρήνα του Ascoos OS, ενώ η πρόσβαση στη βάση γίνεται μέσω του `TJSQLDBHandler`.  
+Όλες οι διαδρομές, τα αρχεία και οι ρυθμίσεις διαχειρίζονται από το ίδιο το λειτουργικό σύστημα, εξασφαλίζοντας σταθερότητα και ασφάλεια.
 
 ---
 
-## 🧩 Απαιτεί:
-- PHP 8.2+
-- Ascoos Framework (Για πρόσβαση υψηλού επιπέδου και διαχείριση)
-- ionCube loaders.
-
----
-
-## **💻 Εγκατάσταση**
-```bash
-git clone https://github.com/alexsoft-software/jsql.git
-cd jsql
-composer install
-```
-✏️ **Περισσότερες λεπτομέρειες προσεχώς, στην τεκμηρίωση!**
-
----
-
-## **📌 Χρήση της Βάσης Δεδομένων**
-
-Την βάση δεδομένων πρέπει να την αρχικοποιήσουμε πριν την χρησιμοποιήσουμε. Αυτό γίνεται μέσω του πίνακα ρυθμίσεων. 
-
-
-### **📑 Παράδειγμα Ρυθμίσεων**
-```php
-
-return [
-    'jsql' => [
-        'config_path' => '/root/path/conf/config.json', 
-        'users_path' => '/root/path/conf/users.json',
-        'databases_root_path' => '/root/path/jsql_db',      
-    ]
-];
-```
-
-### **📑 Παράδειγμα Χρήσης**
+## Με πρώτη ματιά
 
 ```php
-use ASCOOS\FRAMEWORK\Kernel\DB\JSQLDB;
+$db = new TJSQLDBHandler($conf);
 
-// Διαβάζουμε από τον πίνακα ρυθμίσεων τις παραμέτρους λειτουργίας της βάσης δεδομένων. 
-$conf = require "conf/config.php";
-
-$properties['tables_prefix'] = 'ascoos'; // Θα δώσει π.χ. έναν πίνακα "ascoos_articles'
-
-// Αρχικοποίηση του αντικειμένου της βάσης δεδομένων
-$jsql = new TJSQLDB($conf, $properties);
-
-// Δημιουργία βάσης δεδομένων
-$jsql->createDatabase('test_db');
-
-// Δημιουργία χρήστη και αντιστοίχιση σε βάση δεδομένων
-$jsql->createUser('admin', 'root', 'test_db');
-
-// Επιλογή τρέχουσας βάσης δεδομένων
-$jsql->select_db('test_db');
-
-// Δημιουργία πίνακα
-$sql = "CREATE TABLE `#__articles` (
-  `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  `article_id` INT UNSIGNED NOT NULL DEFAULT 0,
-  `cat_id` INT UNSIGNED NOT NULL DEFAULT 0,
-  `user_id` INT UNSIGNED NOT NULL DEFAULT 0,
-  `lang_id` INT UNSIGNED NOT NULL DEFAULT 0,
-  `title` VARCHAR(200) NOT NULL,
-  `content` TEXT NULL COMPRESSED,
-  `created` DATETIME NULL DEFAULT CURRENT_TIMESTAMP(),
-  `updated` DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP()
-);";
-
-$jsql->setSQLQuery($sql);
-$jsql->execute();
-
-// Εισαγωγή δεδομένων
-$query->setSQLQuery("INSERT INTO #__articles (article_id, cat_id, user_id, lang_id, title, content) VALUES 
-(1, 1, 1, 1, 'Title 1', 'Test Content 1'),
-(1, 1, 1, 2, 'Title 2', 'Test Content 2'),
-(2, 2, 1, 1, 'Title 3', 'Test Content 3'),
-(3, 3, 1, 1, 'Title 4', 'Test Content 4'),
-(3, 3, 1, 2, 'Title 5', 'Test Content 5');
+$db->setSQLQuery("
+    SELECT title, created_at
+    FROM #__articles
+    ORDER BY created_at DESC
+    LIMIT 5
 ");
-$query->execute();
 
-$query = "SELECT article_id AS aid, title, content AS doc FROM #__articles WHERE user_id = ".$my->id." AND lang_id = 1 ORDER BY created DESC LIMIT 10";
-$jsql->setSQLQuery($query);
-$jsql->execute();
-$data = $jsql->getResults();
+$db->execute();
 
-// Κλείσιμο όλων των ανοιχτών πόρων της βάσης δεδομένων
-$jsql->close();
+print_r($db->getResults());
 
-print_r($data);
-?>
+$db->close();
 ```
 
-### 📑 **Εναλλακτικός τρόπος δημιουργίας πίνακα**
+## Τι προσφέρει η JSQLDB
+
+Η JSQLDB αποθηκεύει τα δεδομένα σε JSON αρχεία, υποστηρίζει ευρετήρια, συμπίεση στα TEXT πεδία και SQL σύνταξη για CRUD λειτουργίες.  
+Η μηχανή είναι βελτιστοποιημένη για PHP 8.4+ και αξιοποιεί τον **TUTF8 Grapheme Engine** του Ascoos OS, ώστε η επεξεργασία κειμένου να γίνεται με βάση τα πραγματικά οπτικά σύμβολα και όχι τα bytes.
+
+Αυτό σημαίνει ότι η βάση δεν «κόβει» ποτέ χαρακτήρες στη μέση, υπολογίζει σωστά το μήκος σύνθετων χαρακτήρων (emoji, σημαίες, συνδυαστικά σύμβολα) και δημιουργεί ευρετήρια που λειτουργούν σωστά σε όλες τις γλώσσες.
+
+---
+
+## Ρύθμιση και Αρχικοποίηση
+
+Η JSQLDB δεν απαιτεί εγκατάσταση.  
+Οι βασικές διαδρομές (config, users, root path) ορίζονται στο configuration του Ascoos OS και είναι κρυπτογραφημένες.
+
+Παράδειγμα ρυθμίσεων συστήματος:
 
 ```php
-
-// Άμεσος τρόπος δημιουργίας πίνακα και της δομής του.
-$schema = [
-  'id' => 'INT NOT NULL AUTO_INCREMENT PRIMARY KEY',
-  'article_id' => 'INT UNSIGNED NOT NULL DEFAULT 0',
-  'cat_id' => 'INT UNSIGNED NOT NULL DEFAULT 0',
-  'user_id' => 'INT UNSIGNED NOT NULL DEFAULT 0',
-  'lang_id' => 'INT UNSIGNED NOT NULL DEFAULT 0',
-  'title' => 'VARCHAR(200) NOT NULL',
-  'content' => ' TEXT NULL COMPRESSED',
-  'created' => ' DATETIME NULL DEFAULT CURRENT_TIMESTAMP()',
-  'updated' => 'DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP()'
-];
-$jsql->createTable('#__articles', $schema);
+'db' => [
+    'db_driver' => 'jsqldb',
+    'jsqldb' => [
+        'config_path'  => '/path/to/jsqldb/conf/config.json',
+        'users_path'   => '/path/to/jsqldb/conf/users.json',
+        'db_root_path' => '/path/to/jsqldb/db',
+        'dbname'       => 'jsqldb',
+    ],
+],
 ```
 
-📌 **Δείτε περισσότερα παραδείγματα στην επίσημη ιστοσελίδα!**  
+Κάθε domain/subdomain μπορεί να έχει δική του βάση, με δικά του credentials:
 
+```php
+'db' => [
+    'db_driver' => 'jsqldb',
+    'jsqldb' => [
+        'host' => 'localhost',
+        'port' => 28031,
+        'user' => 'user',
+        'pass' => 'pass',
+        'dbname' => 'test_db',
+    ],
+],
+```
+
+---
+
+## Παράδειγμα 1 – Δημιουργία βάσης, πίνακα και μαζική εισαγωγή
+
+Το παρακάτω παράδειγμα (`examples/example3.php`) δείχνει ένα πλήρες workflow:  
+δημιουργία βάσης, χρήστη, πίνακα, batch insert και ανάκτηση δεδομένων.
+
+```php
+$jsqldb = new TJSQLDBHandler($conf, [
+    'tables_prefix' => 'ascoos_',
+    'default_compression' => true
+]);
+
+$jsqldb->createDatabase('test_db');
+$jsqldb->createUser('user', 'pass', 'test_db');
+$jsqldb->selectDatabase('test_db');
+
+$sql = "CREATE TABLE IF NOT EXISTS `#__articles` (...);";
+$jsqldb->setSQLQuery($sql);
+$jsqldb->execute();
+
+$insertQuery = "INSERT INTO #__articles (...) VALUES (?, ?, ?, ?, ?, ?)";
+$jsqldb->bind('iiiiss', [$data], $insertQuery);
+$jsqldb->execute();
+
+$jsqldb->setSQLQuery("SELECT * FROM #__articles LIMIT 10");
+$jsqldb->execute();
+$data = $jsqldb->getResults();
+
+$jsqldb->close();
+```
+
+---
+
+## Παράδειγμα 2 – Σύστημα ειδήσεων με JOIN και δημοσιευμένα άρθρα
+
+Το δεύτερο παράδειγμα (`examples/example4.php`) παρουσιάζει ένα πιο σύνθετο σενάριο:  
+πίνακας ειδήσεων με slug, excerpt, content, timestamps, ENUM status και JOIN με χρήστες και κατηγορίες.
+
+```php
+$jsqldb->createDatabase('myapp_2026');
+$jsqldb->createUser('webuser', 'strongPass123!', 'myapp_2026');
+$jsqldb->selectDatabase('myapp_2026');
+
+$createTable = "CREATE TABLE IF NOT EXISTS `#__news` (...);";
+$jsqldb->setSQLQuery($createTable);
+$jsqldb->execute();
+
+$insertQuery = "INSERT INTO #__news (...) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+$jsqldb->bind('ssssiiis', $data, $insertQuery);
+$jsqldb->execute();
+
+$selectQuery = "
+    SELECT n.id, n.title, n.excerpt, n.published_at,
+           u.username AS author_name,
+           c.name     AS category_name
+    FROM #__news n
+    LEFT JOIN #__users u ON u.id = n.author_id
+    LEFT JOIN #__categories c ON c.id = n.category_id
+    WHERE n.status = 'published'
+      AND n.published_at <= NOW()
+    ORDER BY n.published_at DESC
+    LIMIT 10
+";
+
+$jsqldb->setSQLQuery($selectQuery);
+$jsqldb->execute();
+$articles = $jsqldb->getResults();
+```
+
+---
+
+## Ο TUTF8 Grapheme Engine
+
+Η JSQLDB χρησιμοποιεί τον TUTF8 Engine του Ascoos OS, ο οποίος υπολογίζει το μήκος και την επεξεργασία κειμένου με βάση τα **Grapheme Clusters**.
+
+Παράδειγμα:
+
+| Χαρακτήρας | strlen() | mb_strlen() | utf8->strlen() |
+|-----------|----------|-------------|----------------|
+| 🚀        | 4        | 1           | 1              |
+| 👍🏽       | 8        | 2           | 1              |
+| 🇨🇳       | 8        | 2           | 1              |
+
+Αυτό εξασφαλίζει:
+
+- σωστή αποθήκευση  
+- σωστό indexing  
+- αποφυγή κομμένων χαρακτήρων  
+- πλήρη συμβατότητα με όλες τις γλώσσες  
+
+---
+
+## Άδεια
+
+Η JSQLDB αποτελεί μέρος του **Ascoos OS** και διανέμεται υπό την επίσημη άδεια του έργου.

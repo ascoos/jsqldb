@@ -1,144 +1,173 @@
 ![JSQL Database](https://cdn.ascoos.com/images/jsqldb/jsqldb.png)
 
----
+# JSQLDB – JSON Database Engine with SQL Syntax for Ascoos OS
 
-# **JSQLDB - JSON SQL Database for PHP**
+**JSQLDB** is the built‑in database engine of Ascoos OS.  
+It is based entirely on **JSON files**, while supporting SQL‑like queries for everyday data operations.  
+It is designed for applications that require portability, security, speed, and complete independence from MySQL, MariaDB or SQLite.
 
-## 💬 **A lightweight, SQL-like JSON-based database for PHP**  
-
-**JSQLDB** is a **flexible database system** that **leverages JSON** for storage and provides **SQL-like queries** without requiring SQLite or MySQL. It’s **lightweight, fast**, and **perfect** for applications that need **portability and security**.
-
----
-
-### 🚀 **Features**
-- ✅ **JSON-based storage** without DLL/SO dependencies  
-- ✅ **SQL-like queries** with support for `SELECT`, `INSERT`, `UPDATE`, `DELETE`, `JOIN`, `UNION`, `GROUP BY`, `HAVING`, `LIMIT`, `ORDER BY`, `DISTINCT` etc.
-- ✅ **Indexing support** for fast searching  
-- ✅ **Compressed storage** for optimized resource usage  
-- ✅ **Customizable storage path** for secure data management  
-- ✅ **Optimized for PHP 8.2+**  
+The engine is fully integrated into the Ascoos OS kernel, and all interaction with the database is done through the `TJSQLDBHandler`.  
+All paths, files and configuration values are managed by the operating system itself, ensuring stability and security.
 
 ---
 
-### 🧩 Requires:
-- PHP 8.2+
-- Ascoos Framework (For high level access, and managed)
-- ionCube Loaders
-
----
-
-### **💻 Installation**
-
-```bash
-git clone https://github.com/alexsoft-software/jsql.git
-cd jsql
-composer install
-```
-
-✏️ **More details coming soon in the documentation!**
-
----
-
-## 📌 **Using the Database**
-
-The database must be initialized before using it. This is done through the settings file.
-
-
-### **📑 Example Settings**
-```php
-
-return [
-    'jsql' => [
-        'config_path' => '/root/path/conf/config.json', 
-        'users_path' => '/root/path/conf/users.json',
-        'databases_root_path' => '/root/path/jsql_db',      
-    ]
-];
-```
-
-### **📑 Example Usage**
+## At a glance
 
 ```php
-<?php
-use ASCOOS\FRAMEWORK\Kernel\DB\JSQLDB;
+$db = new TJSQLDBHandler($conf);
 
-// We read from the settings file the operating parameters of the database.
-$conf = require "conf/config.php";
-
-$properties['tables_prefix'] = 'ascoos'; // It will give e.g. a "ascoos_articles' table.
-
-// Initialize the database object
-$jsql = new TJSQLDB($conf, $properties);
-
-// Create Database
-$jsql->createDatabase('test_db');
-
-// Create User and assign to Database
-$jsql->createUser('admin', 'root', 'test_db');
-
-// Select Current Database
-$jsql->select_db('test_db');
-
-// Create Table
-$sql = "CREATE TABLE `#__articles` (
-  `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  `article_id` INT UNSIGNED NOT NULL DEFAULT 0,
-  `cat_id` INT UNSIGNED NOT NULL DEFAULT 0,
-  `user_id` INT UNSIGNED NOT NULL DEFAULT 0,
-  `lang_id` INT UNSIGNED NOT NULL DEFAULT 0,
-  `title` VARCHAR(200) NOT NULL,
-  `content` TEXT NULL COMPRESSED,
-  `created` DATETIME NULL DEFAULT CURRENT_TIMESTAMP(),
-  `updated` DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP()
-);";
-
-$jsql->setSQLQuery($sql);
-$jsql->execute();
-
-// Insert Data
-$query->setSQLQuery("INSERT INTO #__articles (article_id, cat_id, user_id, lang_id, title, content) VALUES 
-(1, 1, 1, 1, 'Title 1', 'Test Content 1'),
-(1, 1, 1, 2, 'Title 2', 'Test Content 2'),
-(2, 2, 1, 1, 'Title 3', 'Test Content 3'),
-(3, 3, 1, 1, 'Title 4', 'Test Content 4'),
-(3, 3, 1, 2, 'Title 5', 'Test Content 5');
+$db->setSQLQuery("
+    SELECT title, created_at
+    FROM #__articles
+    ORDER BY created_at DESC
+    LIMIT 5
 ");
-$query->execute();
 
-$query = "SELECT article_id AS aid, title, content AS doc FROM #__articles WHERE user_id = ".$my->id." AND lang_id = 1 ORDER BY created DESC LIMIT 10";
-$jsql->setSQLQuery($query);
-$jsql->execute();
-$data = $jsql->getResults();
+$db->execute();
 
-// Close all open database resources
-$jsql->close();
+print_r($db->getResults());
 
-print_r($data);
-?>
+$db->close();
 ```
 
-### 📑 **Alternative way to create a table**
+---
+
+## What JSQLDB provides
+
+JSQLDB stores all data in JSON files, supports indexing, compression for TEXT fields, and SQL syntax for CRUD operations.  
+The engine is optimized for PHP 8.4+ and uses the **TUTF8 Grapheme Engine** of Ascoos OS, ensuring that text is processed based on visible characters rather than raw bytes.
+
+This means the database never breaks characters in the middle, calculates the correct length of complex symbols (emoji, flags, combined characters), and produces indexes that behave correctly across all languages.
+
+---
+
+## Configuration and Initialization
+
+JSQLDB requires no installation.  
+The main paths (config, users, root path) are defined in the Ascoos OS configuration and are encrypted.
+
+Example system configuration:
 
 ```php
-
-// Direct way to create a table and its structure.
-$schema = [
-  'id' => 'INT NOT NULL AUTO_INCREMENT PRIMARY KEY',
-  'article_id' => 'INT UNSIGNED NOT NULL DEFAULT 0',
-  'cat_id' => 'INT UNSIGNED NOT NULL DEFAULT 0',
-  'user_id' => 'INT UNSIGNED NOT NULL DEFAULT 0',
-  'lang_id' => 'INT UNSIGNED NOT NULL DEFAULT 0',
-  'title' => 'VARCHAR(200) NOT NULL',
-  'content' => ' TEXT NULL COMPRESSED',
-  'created' => ' DATETIME NULL DEFAULT CURRENT_TIMESTAMP()',
-  'updated' => 'DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP()'
-];
-
-$jsql->createTable('#__articles', $schema);
-
+'db' => [
+    'db_driver' => 'jsqldb',
+    'jsqldb' => [
+        'config_path'  => '/path/to/jsqldb/conf/config.json',
+        'users_path'   => '/path/to/jsqldb/conf/users.json',
+        'db_root_path' => '/path/to/jsqldb/db',
+        'dbname'       => 'jsqldb',
+    ],
+],
 ```
 
-✏️ **See more examples on the official website!**  
+Each domain/subdomain may have its own database with its own credentials:
 
+```php
+'db' => [
+    'db_driver' => 'jsqldb',
+    'jsqldb' => [
+        'host' => 'localhost',
+        'port' => 28031,
+        'user' => 'user',
+        'pass' => 'pass',
+        'dbname' => 'test_db',
+    ],
+],
+```
 
+---
 
+## Example 1 – Creating a database, a table and inserting multiple records
+
+The following example (`examples/example3.php`) demonstrates a complete workflow:  
+creating a database, assigning a user, creating a table, performing a batch insert and retrieving data.
+
+```php
+$jsqldb = new TJSQLDBHandler($conf, [
+    'tables_prefix' => 'ascoos_',
+    'default_compression' => true
+]);
+
+$jsqldb->createDatabase('test_db');
+$jsqldb->createUser('user', 'pass', 'test_db');
+$jsqldb->selectDatabase('test_db');
+
+$sql = "CREATE TABLE IF NOT EXISTS `#__articles` (...);";
+$jsqldb->setSQLQuery($sql);
+$jsqldb->execute();
+
+$insertQuery = "INSERT INTO #__articles (...) VALUES (?, ?, ?, ?, ?, ?)";
+$jsqldb->bind('iiiiss', [$data], $insertQuery);
+$jsqldb->execute();
+
+$jsqldb->setSQLQuery("SELECT * FROM #__articles LIMIT 10");
+$jsqldb->execute();
+$data = $jsqldb->getResults();
+
+$jsqldb->close();
+```
+
+---
+
+## Example 2 – News system with JOIN and published articles
+
+The second example (`examples/example4.php`) shows a more complete scenario:  
+a news table with slug, excerpt, content, timestamps, ENUM status and JOIN with users and categories.
+
+```php
+$jsqldb->createDatabase('myapp_2026');
+$jsqldb->createUser('webuser', 'strongPass123!', 'myapp_2026');
+$jsqldb->selectDatabase('myapp_2026');
+
+$createTable = "CREATE TABLE IF NOT EXISTS `#__news` (...);";
+$jsqldb->setSQLQuery($createTable);
+$jsqldb->execute();
+
+$insertQuery = "INSERT INTO #__news (...) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+$jsqldb->bind('ssssiiis', $data, $insertQuery);
+$jsqldb->execute();
+
+$selectQuery = "
+    SELECT n.id, n.title, n.excerpt, n.published_at,
+           u.username AS author_name,
+           c.name     AS category_name
+    FROM #__news n
+    LEFT JOIN #__users u ON u.id = n.author_id
+    LEFT JOIN #__categories c ON c.id = n.category_id
+    WHERE n.status = 'published'
+      AND n.published_at <= NOW()
+    ORDER BY n.published_at DESC
+    LIMIT 10
+";
+
+$jsqldb->setSQLQuery($selectQuery);
+$jsqldb->execute();
+$articles = $jsqldb->getResults();
+```
+
+---
+
+## The TUTF8 Grapheme Engine
+
+JSQLDB uses the TUTF8 Engine of Ascoos OS, which measures and processes text based on **Grapheme Clusters**.
+
+Example:
+
+| Character | strlen() | mb_strlen() | utf8->strlen() |
+|-----------|----------|-------------|----------------|
+| 🚀        | 4        | 1           | 1              |
+| 👍🏽       | 8        | 2           | 1              |
+| 🇨🇳       | 8        | 2           | 1              |
+
+This ensures:
+
+- correct storage  
+- correct indexing  
+- no broken characters  
+- full multilingual compatibility  
+
+---
+
+## License
+
+JSQLDB is part of **Ascoos OS** and is distributed under the official project license.
