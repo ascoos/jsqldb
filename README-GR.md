@@ -5,7 +5,7 @@
 
 ---
 
-![JSQL Database](https://s.ascoos.com/images/jsql/jsqldb.jpg)
+![JSQL Database](https://cdn.ascoos.com/images/jsqldb/jsqldb.png)
 
 ---
 
