@@ -134,7 +134,7 @@ if (!$jsqldb->execute()) {
 }
 
 
-// 4. Αναζήτηση – απλή 
+// 4. Αναζήτηση - απλή 
 $selectQuery = "SELECT article_id AS aid, title, content AS doc
     FROM #__articles
     WHERE user_id = ? AND lang_id = ?
