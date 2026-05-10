@@ -4,7 +4,7 @@
 
 # Ascoos General License (AGL)
 
-Το **`DoBu`** διανέμεται υπό την Ascoos General License (AGL), μια εμπορική άδεια. Όλα τα δικαιώματα διατηρούνται από την AlexSoft Software.
+Το **`Project`** διανέμεται υπό την Ascoos General License (AGL), μια εμπορική άδεια. Όλα τα δικαιώματα διατηρούνται από την AlexSoft Software.
 
 **Λεπτομέρειες**:
 - Ιστοσελίδα: [Γενική Άδεια Χρήσης του Ascoos](http://docs.ascoos.com/lics/ascoos/AGL.html)

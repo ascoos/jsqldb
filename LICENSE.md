@@ -4,7 +4,7 @@
 
 # Ascoos General License (AGL)
 
-**`DoBu`** is distributed under the Ascoos General License (AGL), a commercial license. All rights reserved by AlexSoft Software.
+The **`Project`** is distributed under the Ascoos General License (AGL), a commercial license. All rights reserved by AlexSoft Software.
 
 **Details**:
 - Website: [Ascoos General License](http://docs.ascoos.com/lics/ascoos/AGL.html)
