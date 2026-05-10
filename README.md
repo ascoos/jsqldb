@@ -1,12 +1,12 @@
+![JSQL Database](https://cdn.ascoos.com/images/jsqldb/jsqldb.png)
+
+---
+
 # **JSQLDB - JSON SQL Database for PHP**
 
 ## 💬 **A lightweight, SQL-like JSON-based database for PHP**  
 
 **JSQLDB** is a **flexible database system** that **leverages JSON** for storage and provides **SQL-like queries** without requiring SQLite or MySQL. It’s **lightweight, fast**, and **perfect** for applications that need **portability and security**.
-
----
-
-![JSQL Database](https://cdn.ascoos.com/images/jsqldb/jsqldb.png)
 
 ---
 
